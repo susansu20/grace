@@ -114,6 +114,61 @@ body::before {
   font-style: italic !important;
 }
 
+/* ── Override Kajabi form inputs ── */
+.page-wrap input[type="text"],
+.page-wrap input[type="email"],
+.page-wrap input[type="tel"],
+.page-wrap input[type="name"],
+.page-wrap input:not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+.page-wrap textarea,
+.page-wrap select {
+  background: rgba(255, 249, 244, 0.08) !important;
+  border: 1px solid rgba(204, 196, 78, 0.45) !important;
+  border-radius: 4px !important;
+  color: #fff9f4 !important;
+  font-family: 'Lato', sans-serif !important;
+  font-size: 15px !important;
+  padding: 14px 18px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+}
+.page-wrap input:focus,
+.page-wrap textarea:focus,
+.page-wrap select:focus {
+  border-color: #ccc44e !important;
+  background: rgba(255, 249, 244, 0.12) !important;
+  box-shadow: 0 0 0 2px rgba(204, 196, 78, 0.2) !important;
+}
+.page-wrap input::placeholder,
+.page-wrap textarea::placeholder {
+  color: rgba(255, 249, 244, 0.35) !important;
+}
+
+/* ── Override Kajabi submit button ── */
+.page-wrap button[type="submit"],
+.page-wrap input[type="submit"],
+.page-wrap button:not([class*="back"]) {
+  background: #181715 !important;
+  color: #ccc44e !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-family: 'Lato', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  padding: 16px 36px !important;
+  cursor: none !important;
+  transition: opacity 0.15s !important;
+  box-shadow: none !important;
+}
+.page-wrap button[type="submit"]:hover,
+.page-wrap input[type="submit"]:hover,
+.page-wrap button:not([class*="back"]):hover {
+  opacity: 0.85 !important;
+}
+
 /* ── Custom dollar cursor ── */
 #dollar-cursor {
   position: fixed;
@@ -165,9 +220,6 @@ body::before {
 <div id="dollar-cursor">$</div>
 <div id="coin-stack"></div>
 
-<!-- Hidden audio element for ka-ching sound -->
-<audio id="kaching" src="Voicy_Shopify sales notification.mp3" preload="auto"></audio>
-
 <div class="page-wrap">
   <script src="https://grace-yeo.mykajabi.com/forms/2149570193/embed.js"></script>
 </div>
@@ -182,10 +234,70 @@ body::before {
   });
 })();
 
-/* ── Coin stack with ka-ching ── */
+/* ── Web Audio cha-ching (no external files, works on hosted URLs) ── */
+var audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+/* Resume context on first user interaction — required by Chrome & Safari */
+document.addEventListener('click', function() {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+
+function playChaChingSound() {
+  try {
+    var ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+    var now = ctx.currentTime;
+
+    /* "cha" — short low thud */
+    var osc1 = ctx.createOscillator();
+    var gain1 = ctx.createGain();
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(520, now);
+    osc1.frequency.exponentialRampToValueAtTime(260, now + 0.08);
+    gain1.gain.setValueAtTime(0.35, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc1.start(now);
+    osc1.stop(now + 0.12);
+
+    /* "ching" — bright bell ring that decays */
+    var osc2 = ctx.createOscillator();
+    var gain2 = ctx.createGain();
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1400, now + 0.06);
+    osc2.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
+    gain2.gain.setValueAtTime(0, now);
+    gain2.gain.linearRampToValueAtTime(0.45, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+    osc2.start(now + 0.06);
+    osc2.stop(now + 0.55);
+
+    /* shimmer overtone */
+    var osc3 = ctx.createOscillator();
+    var gain3 = ctx.createGain();
+    osc3.connect(gain3);
+    gain3.connect(ctx.destination);
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(2800, now + 0.07);
+    gain3.gain.setValueAtTime(0, now);
+    gain3.gain.linearRampToValueAtTime(0.15, now + 0.09);
+    gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    osc3.start(now + 0.07);
+    osc3.stop(now + 0.4);
+  } catch(e) {}
+}
+
+/* ── Coin stack ── */
 (function() {
   var stack = document.getElementById('coin-stack');
-  var audio = document.getElementById('kaching');
   var coinCount = 0;
   var MAX_COINS = 20;
   var filledInputs = new Set();
@@ -200,13 +312,11 @@ body::before {
     void coin.offsetWidth;
     coin.style.animation = '';
     coinCount++;
-    if (withSound) {
-      try { audio.currentTime = 0; audio.play(); } catch(e) {}
-    }
+    if (withSound) playChaChingSound();
   }
 
-  /* seed 3 coins on load — no sound */
-  dropCoin(false); dropCoin(false); dropCoin(false);
+  /* seed 1 coin on load — silent */
+  dropCoin(false);
 
   /* watch for Kajabi form inputs and attach blur/change listeners */
   var pageWrap = document.querySelector('.page-wrap');
@@ -216,14 +326,10 @@ body::before {
       if (filledInputs.has(el)) return;
       filledInputs.add(el);
       el.addEventListener('blur', function() {
-        if (el.value && el.value.trim() !== '') {
-          dropCoin(true);
-        }
+        if (el.value && el.value.trim() !== '') dropCoin(true);
       });
       el.addEventListener('change', function() {
-        if (el.type === 'checkbox' || el.type === 'radio' || el.tagName === 'SELECT') {
-          dropCoin(true);
-        }
+        if (el.type === 'checkbox' || el.type === 'radio' || el.tagName === 'SELECT') dropCoin(true);
       });
     });
   }
