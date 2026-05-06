@@ -128,10 +128,14 @@ body::before {
   color: #fff9f4 !important;
   font-family: 'Lato', sans-serif !important;
   font-size: 15px !important;
-  padding: 14px 18px !important;
+  line-height: 1.5 !important;
+  padding: 16px 20px !important;
+  min-height: 56px !important;
   outline: none !important;
   box-shadow: none !important;
   -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 100% !important;
 }
 .page-wrap input:focus,
 .page-wrap textarea:focus,
@@ -143,6 +147,63 @@ body::before {
 .page-wrap input::placeholder,
 .page-wrap textarea::placeholder {
   color: rgba(255, 249, 244, 0.35) !important;
+}
+
+/* ── Dropdown options — Chrome/Firefox desktop ── */
+.page-wrap select option {
+  background: #181715 !important;
+  color: #fff9f4 !important;
+  font-family: 'Lato', sans-serif !important;
+  font-size: 15px !important;
+  padding: 10px 16px !important;
+}
+.page-wrap select option:checked,
+.page-wrap select option:hover {
+  background: #9e1d16 !important;
+  color: #ccc44e !important;
+}
+
+/* ── Custom dropdown arrow ── */
+.page-wrap select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ccc44e' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 18px center !important;
+  background-size: 12px !important;
+  background-color: rgba(255, 249, 244, 0.08) !important;
+  padding-right: 48px !important;
+}
+
+/* ── Checkbox styling ── */
+.page-wrap input[type="checkbox"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 20px !important;
+  min-height: 20px !important;
+  height: 20px !important;
+  border: 2px solid rgba(204, 196, 78, 0.6) !important;
+  border-radius: 3px !important;
+  background: rgba(255, 249, 244, 0.08) !important;
+  cursor: none !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+}
+.page-wrap input[type="checkbox"]:checked {
+  background: #ccc44e !important;
+  border-color: #ccc44e !important;
+}
+.page-wrap input[type="checkbox"]:checked::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 4px !important;
+  top: 1px !important;
+  width: 5px !important;
+  height: 9px !important;
+  border: 2px solid #181715 !important;
+  border-top: none !important;
+  border-left: none !important;
+  transform: rotate(45deg) !important;
+  display: block !important;
 }
 
 /* ── Override Kajabi submit button ── */
