@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Your Sales Attachment Style?</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lato:wght@400;700;900&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; cursor: none; }
+
+html, body {
+  min-height: 100vh;
+  background: #9e1d16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Lato', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Big watermark text ── */
+.bg-watermark {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(120px, 22vw, 280px);
+  font-weight: 900;
+  color: rgba(255, 249, 244, 0.05);
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  z-index: 0;
+  user-select: none;
+}
+
+/* ── Decorative corner accents ── */
+.corner-tl, .corner-br {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+.corner-tl {
+  top: -2px; left: -2px;
+  width: 180px; height: 180px;
+  border-top: 3px solid rgba(204,196,78,0.25);
+  border-left: 3px solid rgba(204,196,78,0.25);
+  border-radius: 2px;
+}
+.corner-br {
+  bottom: -2px; right: -2px;
+  width: 180px; height: 180px;
+  border-bottom: 3px solid rgba(204,196,78,0.25);
+  border-right: 3px solid rgba(204,196,78,0.25);
+  border-radius: 2px;
+}
+
+/* ── Subtle dot grid overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,249,244,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Tag line ── */
+.brand-tag {
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #ccc44e;
+  z-index: 2;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Form wrapper ── */
+.page-wrap {
+  width: 100%;
+  max-width: 560px;
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Override Kajabi form text ── */
+.page-wrap h1,
+.page-wrap h2,
+.page-wrap h3,
+.page-wrap [class*="title"],
+.page-wrap [class*="heading"],
+.page-wrap [class*="header"] {
+  font-family: 'Playfair Display', serif !important;
+  color: #ccc44e !important;
+  font-weight: 900 !important;
+}
+.page-wrap p,
+.page-wrap [class*="description"],
+.page-wrap [class*="subtitle"],
+.page-wrap label {
+  font-family: 'Playfair Display', serif !important;
+  color: rgba(204, 196, 78, 0.75) !important;
+  font-style: italic !important;
+}
+
+/* ── Custom dollar cursor ── */
+#dollar-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  font-size: 26px;
+  font-weight: 900;
+  color: #ccc44e;
+  font-family: 'Lato', sans-serif;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  user-select: none;
+}
+
+/* ── Coin stack ── */
+#coin-stack {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  pointer-events: none;
+}
+.coin {
+  font-size: 42px;
+  line-height: 1;
+  display: block;
+  animation: coinDrop 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: center bottom;
+}
+@keyframes coinDrop {
+  0%   { opacity: 0; transform: translateY(-40px) scale(0.6); }
+  60%  { opacity: 1; transform: translateY(4px) scale(1.1); }
+  80%  { transform: translateY(-3px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-watermark">SALES</div>
+<div class="corner-tl"></div>
+<div class="corner-br"></div>
+<div class="brand-tag">Pitch Please!</div>
+
+<div id="dollar-cursor">$</div>
+<div id="coin-stack"></div>
+
+<!-- Hidden audio element for ka-ching sound -->
+<audio id="kaching" src="Voicy_Shopify sales notification.mp3" preload="auto"></audio>
+
+<div class="page-wrap">
+  <script src="https://grace-yeo.mykajabi.com/forms/2149570193/embed.js"></script>
+</div>
+
+<script>
+/* ── Dollar sign cursor ── */
+(function() {
+  var cursor = document.getElementById('dollar-cursor');
+  document.addEventListener('mousemove', function(e) {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+})();
+
+/* ── Coin stack with ka-ching ── */
+(function() {
+  var stack = document.getElementById('coin-stack');
+  var audio = document.getElementById('kaching');
+  var coinCount = 0;
+  var MAX_COINS = 20;
+  var filledInputs = new Set();
+
+  function dropCoin(withSound) {
+    if (coinCount >= MAX_COINS) return;
+    var coin = document.createElement('span');
+    coin.className = 'coin';
+    coin.textContent = '\u{1F4B0}';
+    coin.style.animation = 'none';
+    stack.prepend(coin);
+    void coin.offsetWidth;
+    coin.style.animation = '';
+    coinCount++;
+    if (withSound) {
+      try { audio.currentTime = 0; audio.play(); } catch(e) {}
+    }
+  }
+
+  /* seed 3 coins on load — no sound */
+  dropCoin(false); dropCoin(false); dropCoin(false);
+
+  /* watch for Kajabi form inputs and attach blur/change listeners */
+  var pageWrap = document.querySelector('.page-wrap');
+
+  function attachListeners() {
+    pageWrap.querySelectorAll('input, textarea, select').forEach(function(el) {
+      if (filledInputs.has(el)) return;
+      filledInputs.add(el);
+      el.addEventListener('blur', function() {
+        if (el.value && el.value.trim() !== '') {
+          dropCoin(true);
+        }
+      });
+      el.addEventListener('change', function() {
+        if (el.type === 'checkbox' || el.type === 'radio' || el.tagName === 'SELECT') {
+          dropCoin(true);
+        }
+      });
+    });
+  }
+
+  var observer = new MutationObserver(attachListeners);
+  observer.observe(pageWrap, { childList: true, subtree: true });
+  attachListeners();
+})();
+</script>
+</body>
+</html>
