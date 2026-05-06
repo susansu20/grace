@@ -234,13 +234,20 @@ body::before {
   });
 })();
 
-/* ── Web Audio API — loads MP3 via fetch, bypasses autoplay restrictions ── */
+/* ── Web Audio API — Safari + Chrome compatible ── */
 var audioCtx = null;
 var kachingBuffer = null;
 
 function initAudio() {
-  if (audioCtx) return;
+  if (audioCtx) {
+    /* already created — just make sure it's running */
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return;
+  }
+  /* must be created inside a direct user gesture for Safari */
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
   fetch('Voicy_Shopify sales notification.mp3')
     .then(function(r) { return r.arrayBuffer(); })
     .then(function(buf) {
@@ -251,16 +258,15 @@ function initAudio() {
     .catch(function() {});
 }
 
-/* Unlock AudioContext and load sound on first interaction */
-document.addEventListener('click', function() {
-  initAudio();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-}, { once: true });
+/* Both click and touchstart — touchstart fires first on iOS Safari */
+document.addEventListener('touchstart', initAudio, { once: true });
+document.addEventListener('click', initAudio, { once: true });
 
-function playChaChingSound() {
+async function playChaChingSound() {
   try {
     if (!audioCtx || !kachingBuffer) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    /* always resume before playing — Safari suspends context between gestures */
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
     var source = audioCtx.createBufferSource();
     source.buffer = kachingBuffer;
     source.connect(audioCtx.destination);
