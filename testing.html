@@ -218,8 +218,15 @@ html, body {
 .next-btn:hover { background: rgba(204,196,78,0.1); border-color: #ccc44e; transform: translateY(-1px); }
 .next-btn:disabled { opacity: 0.3; pointer-events: none; }
 
-/* hidden next — shown after selection */
-.next-wrap { display: none; }
+/* ── Back button ── */
+.back-btn {
+  background: transparent; border: none;
+  color: rgba(255,249,244,0.4); font-size: 13px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  font-family: 'Lato', sans-serif; cursor: none;
+  transition: color 0.15s; padding: 13px 0;
+}
+.back-btn:hover { color: rgba(255,249,244,0.8); }
 
 /* ── Thank-you screen ── */
 #screen-thanks {
@@ -279,15 +286,26 @@ html, body {
 })();
 
 /* ══ Web Audio (Shopify ka-ching) ══ */
-var audioCtx = null, kachingBuffer = null;
+var audioCtx = null, kachingBuffer = null, pendingAudioBuffer = null;
+
+/* Fetch MP3 immediately on page load — no AudioContext needed yet */
+fetch('Voicy_Shopify%20sales%20notification.mp3')
+  .then(function(r) { if (!r.ok) throw new Error('fetch failed'); return r.arrayBuffer(); })
+  .then(function(buf) { pendingAudioBuffer = buf; tryDecode(); })
+  .catch(function() {});
+
+function tryDecode() {
+  if (audioCtx && pendingAudioBuffer) {
+    var buf = pendingAudioBuffer; pendingAudioBuffer = null;
+    audioCtx.decodeAudioData(buf, function(d) { kachingBuffer = d; });
+  }
+}
+
 function initAudio() {
   if (audioCtx) { if (audioCtx.state === 'suspended') audioCtx.resume(); return; }
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  fetch('Voicy_Shopify sales notification.mp3')
-    .then(function(r) { return r.arrayBuffer(); })
-    .then(function(buf) { audioCtx.decodeAudioData(buf, function(d) { kachingBuffer = d; }); })
-    .catch(function() {});
+  tryDecode(); /* decode the already-fetched buffer right away */
 }
 document.addEventListener('touchstart', initAudio, { once: true });
 document.addEventListener('click',      initAudio, { once: true });
@@ -315,25 +333,70 @@ function dropCoin(withSound) {
 dropCoin(false);
 
 /* ══ Quiz engine ══ */
-var quizSteps = [], currentStep = 0, quizAnswers = {};
+var quizSteps = [], currentStep = 0, quizAnswers = {}, coinsDropped = new Set();
+
+/* ── Known Kajabi questions (fallback if DOM extraction fails) ── */
+var KNOWN_QUESTIONS = {
+  'custom_2': "You just had a great discovery call. They said ‘I need to think about it.’ What happens next?",
+  'custom_3': "You’ve just signed two new clients. Your calendar is full. When do you next think about selling?",
+  'custom_4': "You’re about to say your price. The words are forming. What comes out?",
+  'custom_5': "It’s been a slow month. No leads, no clients, no momentum. What do you do?",
+  'custom_6': "A prospect says ‘your price is too high.’ What’s your first instinct?",
+  'custom_7': "You’ve just closed a client. Payment confirmed. How do you feel 24 hours later?"
+};
 
 /* ── Label helpers ── */
+var GENERIC_STRINGS = ['subscribe', 'email', 'content', 'latest', 'newsletter'];
+function isGeneric(txt) {
+  var low = txt.toLowerCase();
+  return GENERIC_STRINGS.some(function(s){ return low.indexOf(s) !== -1; });
+}
+
 function getRadioGroupLabel(firstRadio, form) {
-  // fieldset > legend
+  var name = firstRadio.name; // e.g. "form_submission[custom_2]"
+
+  /* 1. fieldset > legend */
   var fieldset = firstRadio.closest('fieldset');
-  if (fieldset) { var leg = fieldset.querySelector('legend'); if (leg) return leg.textContent.trim(); }
-  // container with a label/heading before the radios
-  var parent = firstRadio.parentElement;
-  for (var i = 0; i < 6; i++) {
-    if (!parent || parent === form) break;
-    // look for a sibling or first-child text element
-    var heading = parent.querySelector('label:not([for]), p, h2, h3, h4, div > strong, [class*="label"], [class*="title"], [class*="question"]');
-    if (heading && heading.textContent.trim() && !heading.querySelector('input')) return heading.textContent.trim();
-    var prev = parent.previousElementSibling;
-    if (prev && prev.textContent.trim() && !prev.querySelector('input, select')) return prev.textContent.trim();
-    parent = parent.parentElement;
+  if (fieldset) { var leg = fieldset.querySelector('legend'); if (leg && leg.textContent.trim() && !isGeneric(leg.textContent)) return leg.textContent.trim(); }
+
+  /* 2. Find tightest container that holds ALL radios of this group */
+  var escaped = CSS.escape(name);
+  var totalCount = form.querySelectorAll('input[type="radio"][name="'+escaped+'"]').length;
+  var el = firstRadio;
+  var groupContainer = null;
+  for (var d = 0; d < 8; d++) {
+    el = el.parentElement;
+    if (!el || el === form || el === document.body) break;
+    if (el.querySelectorAll('input[type="radio"][name="'+escaped+'"]').length === totalCount) {
+      groupContainer = el; break;
+    }
   }
-  return firstRadio.name.replace(/form_submission\[|\]/g, '');
+
+  if (groupContainer) {
+    /* Look for a text child BEFORE the first radio */
+    var kids = Array.from(groupContainer.children);
+    for (var i = 0; i < kids.length; i++) {
+      if (kids[i].querySelector('input[type="radio"]')) break;
+      var t = kids[i].textContent.trim();
+      if (t.length > 8 && !isGeneric(t) && !kids[i].querySelector('input')) return t;
+    }
+    /* Or any label/p within the container that isn't wrapping an input */
+    var candidates = groupContainer.querySelectorAll('label, p, legend, h3, h4, span');
+    for (var j = 0; j < candidates.length; j++) {
+      var c = candidates[j];
+      if (!c.querySelector('input') && c.textContent.trim().length > 8 && !isGeneric(c.textContent)) return c.textContent.trim();
+    }
+    /* Preceding sibling of the container */
+    var prev = groupContainer.previousElementSibling;
+    if (prev && !prev.querySelector('input') && prev.textContent.trim().length > 8 && !isGeneric(prev.textContent)) return prev.textContent.trim();
+  }
+
+  /* 3. Fallback to known questions keyed by field name */
+  for (var key in KNOWN_QUESTIONS) {
+    if (name.indexOf(key) !== -1) return KNOWN_QUESTIONS[key];
+  }
+
+  return name.replace(/form_submission\[|\]/g, '');
 }
 
 function getRadioOptionLabel(radio) {
@@ -411,19 +474,28 @@ function renderAllSteps() {
           +'</div>';
       });
       html += '</div>';
-      html += '<div class="next-wrap" id="next-wrap-'+idx+'">'
-        +'<button class="next-btn" onclick="advance('+idx+')">Next &rarr;</button></div>';
+      html += '<div class="nav-row" style="margin-top:2rem;display:flex;align-items:center;gap:16px;">'
+        +(idx > 0 ? '<button class="back-btn" onclick="goBack()">&#8592; Back</button>' : '')
+        +'<div class="next-wrap" id="next-wrap-'+idx+'" style="display:none">'
+        +'<button class="next-btn" style="margin-top:0" onclick="advance('+idx+')">Next &rarr;</button></div>'
+        +'</div>';
 
     } else if (step.type === 'checkbox') {
       html += '<div class="checkbox-card" id="cb-card-'+idx+'" onclick="toggleCheckbox('+idx+')">'
         +'<div class="checkbox-box"><svg class="checkbox-check" width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#181715" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
         +'<div class="checkbox-label">'+escHtml(step.label)+'</div>'
         +'</div>';
-      html += '<button class="next-btn" style="margin-top:1.5rem" onclick="advance('+idx+')">Next &rarr;</button>';
+      html += '<div style="margin-top:1.5rem;display:flex;align-items:center;gap:16px;">'
+        +(idx > 0 ? '<button class="back-btn" onclick="goBack()">&#8592; Back</button>' : '')
+        +'<button class="next-btn" style="margin-top:0" onclick="advance('+idx+')">Next &rarr;</button>'
+        +'</div>';
 
     } else {
       html += '<input class="step-input" id="input-'+idx+'" type="'+step.type+'" placeholder="'+escAttr(step.label)+'" oninput="onTextInput('+idx+',this)" />';
-      html += '<button class="next-btn" id="next-btn-'+idx+'" style="margin-top:1.5rem" onclick="advance('+idx+')" disabled>Next &rarr;</button>';
+      html += '<div style="margin-top:1.5rem;display:flex;align-items:center;gap:16px;">'
+        +(idx > 0 ? '<button class="back-btn" onclick="goBack()">&#8592; Back</button>' : '')
+        +'<button class="next-btn" id="next-btn-'+idx+'" style="margin-top:0" onclick="advance('+idx+')" disabled>Next &rarr;</button>'
+        +'</div>';
     }
 
     screen.innerHTML = html;
@@ -452,7 +524,8 @@ function selectChoice(el, stepIdx) {
   }
 
   document.getElementById('next-wrap-'+stepIdx).style.display = 'block';
-  dropCoin(true);
+  /* only one coin per step, no matter how many times user changes answer */
+  if (!coinsDropped.has(stepIdx)) { coinsDropped.add(stepIdx); dropCoin(true); }
 }
 
 function toggleCheckbox(stepIdx) {
@@ -479,12 +552,18 @@ function advance(stepIdx) {
     step.field.dispatchEvent(new Event('input',{bubbles:true}));
     step.field.dispatchEvent(new Event('change',{bubbles:true}));
   }
-  // coin on text/checkbox advance
-  if (step.type !== 'radio' && step.type !== 'select') dropCoin(true);
+  // coin on text/checkbox advance — one per step only
+  if (step.type !== 'radio' && step.type !== 'select') {
+    if (!coinsDropped.has(stepIdx)) { coinsDropped.add(stepIdx); dropCoin(true); }
+  }
 
   var next = stepIdx + 1;
   if (next < quizSteps.length) { showStep(next); }
   else { submitToKajabi(); }
+}
+
+function goBack() {
+  if (currentStep > 0) showStep(currentStep - 1);
 }
 
 function showStep(idx) {
@@ -532,6 +611,27 @@ function waitForKajabi() {
     }
   }, 300);
 }
+
+/* ══ Enter key → advance ══ */
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  var step = quizSteps[currentStep];
+  if (!step) return;
+
+  if (step.type === 'radio' || step.type === 'select') {
+    /* only advance if a choice is already selected */
+    var selected = document.querySelector('#choices-'+currentStep+' .choice-card.selected');
+    if (selected) advance(currentStep);
+
+  } else if (step.type === 'checkbox') {
+    advance(currentStep);
+
+  } else {
+    /* text / email — only if field has value */
+    var input = document.getElementById('input-'+currentStep);
+    if (input && input.value.trim()) advance(currentStep);
+  }
+});
 
 waitForKajabi();
 </script>
