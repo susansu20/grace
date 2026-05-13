@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>What's Your Sales Attachment Style?</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lato:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Inter:wght@400;500;700;900&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; cursor: none; }
 
 html, body {
   min-height: 100vh;
   background: #181715;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Inter', sans-serif;
   position: relative;
   overflow-x: hidden;
 }
@@ -27,15 +27,6 @@ html, body {
   background-image: radial-gradient(circle, rgba(255,249,244,0.06) 1px, transparent 1px);
   background-size: 28px 28px;
 }
-.bg-watermark {
-  position: fixed; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(120px, 22vw, 280px);
-  font-weight: 900; color: rgba(255,249,244,0.05);
-  line-height: 1; pointer-events: none; white-space: nowrap;
-  letter-spacing: -0.02em; z-index: 1; user-select: none;
-}
 .corner-tl, .corner-br { position: fixed; pointer-events: none; z-index: 1; }
 .corner-tl {
   top: -2px; left: -2px; width: 180px; height: 180px;
@@ -47,11 +38,15 @@ html, body {
   border-bottom: 3px solid rgba(204,196,78,0.25);
   border-right: 3px solid rgba(204,196,78,0.25); border-radius: 2px;
 }
-.brand-tag {
-  position: fixed; top: 2rem; left: 50%; transform: translateX(-50%);
-  font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
-  text-transform: uppercase; color: #ccc44e;
-  z-index: 10; white-space: nowrap; pointer-events: none;
+
+/* ── Logo ── */
+.brand-logo {
+  position: fixed; top: 1.25rem; left: 50%; transform: translateX(-50%);
+  font-family: 'Marcellus', serif;
+  font-size: clamp(18px, 2.8vw, 28px);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: #ccc44e; z-index: 10; white-space: nowrap;
+  pointer-events: none; user-select: none;
 }
 
 /* ── Progress bar ── */
@@ -68,26 +63,38 @@ html, body {
 #dollar-cursor {
   position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
   font-size: 26px; font-weight: 900; color: #ccc44e;
-  font-family: 'Lato', sans-serif; line-height: 1;
+  font-family: 'Inter', sans-serif; line-height: 1;
   transform: translate(-50%, -50%); user-select: none;
 }
 
-/* ── Coin stack ── */
-#coin-stack {
-  position: fixed; bottom: 20px; left: 20px; z-index: 9998;
-  display: flex; flex-direction: column-reverse; align-items: center;
-  pointer-events: none;
+/* ── Bag progress indicator ── */
+#bag-progress {
+  position: fixed; left: 18px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 5px;
+  z-index: 9998; pointer-events: none;
 }
-.coin {
-  font-size: 42px; line-height: 1; display: block;
-  animation: coinDrop 0.45s cubic-bezier(0.22,1,0.36,1) forwards;
-  transform-origin: center bottom;
+.prog-bag {
+  font-size: 24px; line-height: 1; display: block;
+  filter: grayscale(1) opacity(0.22);
+  transition: filter 0.5s ease;
 }
-@keyframes coinDrop {
-  0%   { opacity:0; transform:translateY(-40px) scale(0.6); }
-  60%  { opacity:1; transform:translateY(4px) scale(1.1); }
-  80%  { transform:translateY(-3px) scale(0.97); }
-  100% { opacity:1; transform:translateY(0) scale(1); }
+.prog-bag.filled {
+  filter: none;
+  animation: bagBounce 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes bagBounce {
+  0%   { transform: scale(0.55); }
+  55%  { transform: scale(1.3);  }
+  78%  { transform: scale(0.9);  }
+  100% { transform: scale(1);    }
+}
+@media (max-width: 700px) {
+  #bag-progress {
+    left: 50%; top: auto; bottom: 14px;
+    transform: translateX(-50%);
+    flex-direction: row; gap: 4px;
+  }
+  .prog-bag { font-size: 20px; }
 }
 
 /* ══ QUIZ UI ══ */
@@ -95,34 +102,66 @@ html, body {
   position: relative; z-index: 5;
   min-height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  padding: 6rem 2rem 4rem;
+  padding: 6rem 2rem 4rem 80px;
+}
+@media (max-width: 700px) {
+  #quiz-ui { padding: 6rem 1.25rem 100px; }
 }
 
+/* Transitions — enter from below, exit upward (and reverse for back) */
 .quiz-screen {
-  display: none; width: 100%; max-width: 900px;
-  animation: fadeUp 0.35s ease;
+  display: none;
+  width: 100%; max-width: 900px;
 }
-.quiz-screen.active { display: block; }
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(16px); }
-  to   { opacity:1; transform:translateY(0); }
+.quiz-screen.active {
+  display: block;
+  animation: enterFromBelow 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+.quiz-screen.active.from-back {
+  animation: enterFromAbove 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+.quiz-screen.exiting {
+  display: block;
+  pointer-events: none;
+  animation: exitToAbove 0.38s ease both;
+}
+.quiz-screen.exiting.to-back {
+  animation: exitToBelow 0.38s ease both;
+}
+
+@keyframes enterFromBelow {
+  from { opacity: 0; transform: translateY(48px);  filter: blur(7px); }
+  to   { opacity: 1; transform: translateY(0);     filter: blur(0);   }
+}
+@keyframes enterFromAbove {
+  from { opacity: 0; transform: translateY(-38px); filter: blur(7px); }
+  to   { opacity: 1; transform: translateY(0);     filter: blur(0);   }
+}
+@keyframes exitToAbove {
+  from { opacity: 1; transform: translateY(0);     filter: blur(0);   }
+  to   { opacity: 0; transform: translateY(-38px); filter: blur(7px); }
+}
+@keyframes exitToBelow {
+  from { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+  to   { opacity: 0; transform: translateY(38px); filter: blur(7px); }
 }
 
 /* step counter */
 .step-num {
   font-size: 13px; font-weight: 700; letter-spacing: 0.16em;
   color: #ccc44e; margin-bottom: 1.75rem;
+  font-family: 'Inter', sans-serif;
 }
 
 /* question */
 .step-question {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(24px, 4vw, 48px);
-  font-weight: 700; color: #fff9f4;
-  line-height: 1.2; margin-bottom: 2.5rem; max-width: 820px;
+  font-family: 'Marcellus', serif;
+  font-size: clamp(22px, 3.8vw, 44px);
+  color: #fff9f4;
+  line-height: 1.25; margin-bottom: 2.5rem; max-width: 820px;
 }
 
-/* ── Choice cards (radio + select) ── */
+/* ── Choice cards ── */
 .choices-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -137,7 +176,7 @@ html, body {
   padding: 1.1rem 1.25rem 1.1rem 1rem;
   display: flex; align-items: flex-start; gap: 14px;
   cursor: none; user-select: none;
-  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
 }
 .choice-card:hover {
   border-color: rgba(204,196,78,0.55);
@@ -154,7 +193,7 @@ html, body {
   border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; color: #ccc44e;
-  margin-top: 1px;
+  margin-top: 1px; font-family: 'Inter', sans-serif;
   transition: background 0.15s, border-color 0.15s;
 }
 .choice-card.selected .choice-num {
@@ -162,7 +201,7 @@ html, body {
 }
 .choice-text {
   font-size: 14px; color: rgba(255,249,244,0.82);
-  line-height: 1.55; font-family: 'Lato', sans-serif;
+  line-height: 1.55; font-family: 'Inter', sans-serif;
 }
 .choice-card.selected .choice-text { color: #fff9f4; }
 
@@ -173,7 +212,7 @@ html, body {
   border: 1.5px solid rgba(204,196,78,0.35);
   border-radius: 8px; padding: 18px 22px;
   font-size: 18px; color: #fff9f4;
-  font-family: 'Lato', sans-serif; outline: none;
+  font-family: 'Inter', sans-serif; outline: none;
   transition: border-color 0.15s, background 0.15s;
   -webkit-appearance: none;
 }
@@ -202,7 +241,7 @@ html, body {
 .checkbox-card.checked .checkbox-box { background: #ccc44e; border-color: #ccc44e; }
 .checkbox-check { display: none; }
 .checkbox-card.checked .checkbox-check { display: block; }
-.checkbox-label { font-size: 15px; color: rgba(255,249,244,0.85); line-height: 1.4; }
+.checkbox-label { font-size: 15px; color: rgba(255,249,244,0.85); line-height: 1.4; font-family: 'Inter', sans-serif; }
 
 /* ── Next / Submit buttons ── */
 .next-btn {
@@ -211,8 +250,8 @@ html, body {
   background: transparent;
   border: 1.5px solid rgba(204,196,78,0.5); color: #ccc44e;
   padding: 13px 28px; border-radius: 6px;
-  font-size: 13px; font-weight: 900; letter-spacing: 0.1em;
-  text-transform: uppercase; font-family: 'Lato', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; font-family: 'Inter', sans-serif;
   cursor: none; transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
 .next-btn:hover { background: rgba(204,196,78,0.1); border-color: #ccc44e; transform: translateY(-1px); }
@@ -223,7 +262,7 @@ html, body {
   background: transparent; border: none;
   color: rgba(255,249,244,0.4); font-size: 13px;
   font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  font-family: 'Lato', sans-serif; cursor: none;
+  font-family: 'Inter', sans-serif; cursor: none;
   transition: color 0.15s; padding: 13px 0;
 }
 .back-btn:hover { color: rgba(255,249,244,0.8); }
@@ -235,15 +274,15 @@ html, body {
   align-items: center; justify-content: center;
   text-align: center; padding: 4rem 2rem;
 }
-#screen-thanks.active { display: flex; }
+#screen-thanks.active { display: flex; animation: enterFromBelow 0.6s cubic-bezier(0.22,1,0.36,1) both; }
 #screen-thanks h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Marcellus', serif;
   font-size: clamp(32px, 5vw, 56px);
-  font-weight: 900; color: #fff9f4; margin-bottom: 1rem;
+  color: #fff9f4; margin-bottom: 1rem;
 }
-#screen-thanks p { font-size: 16px; color: rgba(255,249,244,0.6); max-width: 400px; line-height: 1.7; }
+#screen-thanks p { font-size: 16px; color: rgba(255,249,244,0.6); max-width: 400px; line-height: 1.7; font-family: 'Inter', sans-serif; }
 
-/* ── Kajabi form — visually hidden, parsed then submitted ── */
+/* ── Kajabi sink ── */
 #kajabi-sink {
   position: absolute; left: -9999px; top: -9999px;
   width: 1px; height: 1px; overflow: hidden;
@@ -254,20 +293,19 @@ html, body {
 <body>
 
 <div id="bg-layer"></div>
-<div class="bg-watermark">SALES</div>
 <div class="corner-tl"></div>
 <div class="corner-br"></div>
-<div class="brand-tag">Pitch Please!</div>
+<div class="brand-logo">Pitch Please!</div>
 
 <div class="progress-wrap"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 <div id="dollar-cursor">$</div>
-<div id="coin-stack"></div>
+<div id="bag-progress"></div>
 
 <div id="quiz-ui"></div>
 
 <div id="screen-thanks">
   <h2>You're in. ✦</h2>
-  <p>Check your inbox — your results are on their way.</p>
+  <p>Check your inbox &mdash; your results are on their way.</p>
 </div>
 
 <!-- Kajabi form renders here, hidden — parsed + submitted programmatically -->
@@ -288,7 +326,6 @@ html, body {
 /* ══ Web Audio (Shopify ka-ching) ══ */
 var audioCtx = null, kachingBuffer = null, pendingAudioBuffer = null;
 
-/* Fetch MP3 immediately on page load — no AudioContext needed yet */
 fetch('Voicy_Shopify%20sales%20notification.mp3')
   .then(function(r) { if (!r.ok) throw new Error('fetch failed'); return r.arrayBuffer(); })
   .then(function(buf) { pendingAudioBuffer = buf; tryDecode(); })
@@ -300,12 +337,11 @@ function tryDecode() {
     audioCtx.decodeAudioData(buf, function(d) { kachingBuffer = d; });
   }
 }
-
 function initAudio() {
   if (audioCtx) { if (audioCtx.state === 'suspended') audioCtx.resume(); return; }
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  tryDecode(); /* decode the already-fetched buffer right away */
+  tryDecode();
 }
 document.addEventListener('touchstart', initAudio, { once: true });
 document.addEventListener('click',      initAudio, { once: true });
@@ -319,21 +355,37 @@ async function playChaChingSound() {
   } catch(e) {}
 }
 
-/* ══ Coin stack ══ */
-var coinCount = 0, MAX_COINS = 20;
-var coinStackEl = document.getElementById('coin-stack');
-function dropCoin(withSound) {
-  if (coinCount >= MAX_COINS) return;
-  var coin = document.createElement('span');
-  coin.className = 'coin'; coin.textContent = '\u{1F4B0}';
-  coin.style.animation = 'none'; coinStackEl.prepend(coin);
-  void coin.offsetWidth; coin.style.animation = ''; coinCount++;
+/* ══ Bag progress ══ */
+var bagsFilled = new Set();
+
+function buildBagProgress(total) {
+  var wrap = document.getElementById('bag-progress');
+  wrap.innerHTML = '';
+  for (var i = 0; i < total; i++) {
+    var b = document.createElement('span');
+    b.className = 'prog-bag';
+    b.id = 'prog-bag-' + i;
+    b.textContent = '\u{1F4B0}';
+    wrap.appendChild(b);
+  }
+}
+
+function fillBag(stepIdx, withSound) {
+  if (bagsFilled.has(stepIdx)) return;
+  bagsFilled.add(stepIdx);
+  var bag = document.getElementById('prog-bag-' + stepIdx);
+  if (bag) {
+    bag.classList.add('filled');
+    /* restart animation in case it was already applied */
+    bag.style.animation = 'none';
+    bag.offsetWidth;
+    bag.style.animation = '';
+  }
   if (withSound) playChaChingSound();
 }
-dropCoin(false);
 
 /* ══ Quiz engine ══ */
-var quizSteps = [], currentStep = 0, quizAnswers = {}, coinsDropped = new Set();
+var quizSteps = [], currentStep = 0, quizAnswers = {};
 
 /* ── Known Kajabi questions (fallback if DOM extraction fails) ── */
 var KNOWN_QUESTIONS = {
@@ -345,7 +397,6 @@ var KNOWN_QUESTIONS = {
   'custom_7': "You’ve just closed a client. Payment confirmed. How do you feel 24 hours later?"
 };
 
-/* ── Label helpers ── */
 var GENERIC_STRINGS = ['subscribe', 'email', 'content', 'latest', 'newsletter'];
 function isGeneric(txt) {
   var low = txt.toLowerCase();
@@ -353,57 +404,41 @@ function isGeneric(txt) {
 }
 
 function getRadioGroupLabel(firstRadio, form) {
-  var name = firstRadio.name; // e.g. "form_submission[custom_2]"
-
-  /* 1. fieldset > legend */
+  var name = firstRadio.name;
   var fieldset = firstRadio.closest('fieldset');
   if (fieldset) { var leg = fieldset.querySelector('legend'); if (leg && leg.textContent.trim() && !isGeneric(leg.textContent)) return leg.textContent.trim(); }
-
-  /* 2. Find tightest container that holds ALL radios of this group */
   var escaped = CSS.escape(name);
   var totalCount = form.querySelectorAll('input[type="radio"][name="'+escaped+'"]').length;
-  var el = firstRadio;
-  var groupContainer = null;
+  var el = firstRadio, groupContainer = null;
   for (var d = 0; d < 8; d++) {
     el = el.parentElement;
     if (!el || el === form || el === document.body) break;
-    if (el.querySelectorAll('input[type="radio"][name="'+escaped+'"]').length === totalCount) {
-      groupContainer = el; break;
-    }
+    if (el.querySelectorAll('input[type="radio"][name="'+escaped+'"]').length === totalCount) { groupContainer = el; break; }
   }
-
   if (groupContainer) {
-    /* Look for a text child BEFORE the first radio */
     var kids = Array.from(groupContainer.children);
     for (var i = 0; i < kids.length; i++) {
       if (kids[i].querySelector('input[type="radio"]')) break;
       var t = kids[i].textContent.trim();
       if (t.length > 8 && !isGeneric(t) && !kids[i].querySelector('input')) return t;
     }
-    /* Or any label/p within the container that isn't wrapping an input */
     var candidates = groupContainer.querySelectorAll('label, p, legend, h3, h4, span');
     for (var j = 0; j < candidates.length; j++) {
-      var c = candidates[j];
-      if (!c.querySelector('input') && c.textContent.trim().length > 8 && !isGeneric(c.textContent)) return c.textContent.trim();
+      var cc = candidates[j];
+      if (!cc.querySelector('input') && cc.textContent.trim().length > 8 && !isGeneric(cc.textContent)) return cc.textContent.trim();
     }
-    /* Preceding sibling of the container */
     var prev = groupContainer.previousElementSibling;
     if (prev && !prev.querySelector('input') && prev.textContent.trim().length > 8 && !isGeneric(prev.textContent)) return prev.textContent.trim();
   }
-
-  /* 3. Fallback to known questions keyed by field name */
   for (var key in KNOWN_QUESTIONS) {
     if (name.indexOf(key) !== -1) return KNOWN_QUESTIONS[key];
   }
-
   return name.replace(/form_submission\[|\]/g, '');
 }
 
 function getRadioOptionLabel(radio) {
-  // wrapping <label>
   var lbl = radio.closest('label');
   if (lbl) { var c = lbl.cloneNode(true); c.querySelectorAll('input').forEach(function(el){el.remove();}); return c.textContent.trim(); }
-  // associated label[for]
   if (radio.id) { var l2 = document.querySelector('label[for="'+radio.id+'"]'); if (l2) return l2.textContent.trim(); }
   return radio.value;
 }
@@ -417,6 +452,15 @@ function getLabelFor(field, form) {
   return field.placeholder || field.name || '';
 }
 
+/* Fisher-Yates shuffle */
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
 /* ── Build quiz steps from Kajabi form ── */
 function buildQuiz(form) {
   var allFields = form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]), select, textarea');
@@ -425,28 +469,26 @@ function buildQuiz(form) {
 
   allFields.forEach(function(field) {
     if (field.type === 'hidden' || field.type === 'submit') return;
-
     if (field.type === 'radio') {
       if (seenRadioNames.has(field.name)) return;
       seenRadioNames.add(field.name);
-      var nameEscaped = field.name.replace(/\[/g,'\\[').replace(/\]/g,'\\]');
       var group = Array.from(form.querySelectorAll('input[type="radio"][name="'+CSS.escape(field.name)+'"]'));
       var label = getRadioGroupLabel(field, form);
       var options = group.map(function(r) { return { value: r.value, text: getRadioOptionLabel(r) || r.value }; });
+      shuffle(options); /* randomize answer order */
       quizSteps.push({ type: 'radio', label: label, radioGroup: group, options: options });
-
     } else if (field.tagName === 'SELECT') {
       var opts = Array.from(field.options).filter(function(o){return o.value!=='';}).map(function(o){return{value:o.value,text:o.text};});
+      shuffle(opts);
       quizSteps.push({ type: 'select', label: getLabelFor(field, form), field: field, options: opts });
-
     } else if (field.type === 'checkbox') {
       quizSteps.push({ type: 'checkbox', label: getLabelFor(field, form), field: field });
-
     } else {
       quizSteps.push({ type: field.type === 'email' ? 'email' : 'text', label: getLabelFor(field, form) || (field.type==='email'?'Email':'Name'), field: field });
     }
   });
 
+  buildBagProgress(quizSteps.length);
   renderAllSteps();
   showStep(0);
 }
@@ -476,10 +518,9 @@ function renderAllSteps() {
       html += '</div>';
       html += '<div class="nav-row" style="margin-top:2rem;display:flex;align-items:center;gap:16px;">'
         +(idx > 0 ? '<button class="back-btn" onclick="goBack()">&#8592; Back</button>' : '')
-        +'<div class="next-wrap" id="next-wrap-'+idx+'" style="display:none">'
+        +'<div id="next-wrap-'+idx+'" style="display:none">'
         +'<button class="next-btn" style="margin-top:0" onclick="advance('+idx+')">Next &rarr;</button></div>'
         +'</div>';
-
     } else if (step.type === 'checkbox') {
       html += '<div class="checkbox-card" id="cb-card-'+idx+'" onclick="toggleCheckbox('+idx+')">'
         +'<div class="checkbox-box"><svg class="checkbox-check" width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#181715" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
@@ -489,7 +530,6 @@ function renderAllSteps() {
         +(idx > 0 ? '<button class="back-btn" onclick="goBack()">&#8592; Back</button>' : '')
         +'<button class="next-btn" style="margin-top:0" onclick="advance('+idx+')">Next &rarr;</button>'
         +'</div>';
-
     } else {
       html += '<input class="step-input" id="input-'+idx+'" type="'+step.type+'" placeholder="'+escAttr(step.label)+'" oninput="onTextInput('+idx+',this)" />';
       html += '<div style="margin-top:1.5rem;display:flex;align-items:center;gap:16px;">'
@@ -510,7 +550,6 @@ function selectChoice(el, stepIdx) {
   var val = el.dataset.value;
   quizAnswers[stepIdx] = val;
 
-  // check the actual radio input in hidden form
   var step = quizSteps[stepIdx];
   if (step.type === 'radio' && step.radioGroup) {
     step.radioGroup.forEach(function(r) {
@@ -524,8 +563,7 @@ function selectChoice(el, stepIdx) {
   }
 
   document.getElementById('next-wrap-'+stepIdx).style.display = 'block';
-  /* only one coin per step, no matter how many times user changes answer */
-  if (!coinsDropped.has(stepIdx)) { coinsDropped.add(stepIdx); dropCoin(true); }
+  fillBag(stepIdx, true); /* one bag fill per step, ignores repeats */
 }
 
 function toggleCheckbox(stepIdx) {
@@ -544,7 +582,6 @@ function onTextInput(stepIdx, el) {
 
 function advance(stepIdx) {
   var step = quizSteps[stepIdx];
-  // sync text/email field to Kajabi hidden input
   if ((step.type === 'text' || step.type === 'email') && step.field) {
     var val = quizAnswers[stepIdx] || '';
     var ns = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value');
@@ -552,28 +589,44 @@ function advance(stepIdx) {
     step.field.dispatchEvent(new Event('input',{bubbles:true}));
     step.field.dispatchEvent(new Event('change',{bubbles:true}));
   }
-  // coin on text/checkbox advance — one per step only
   if (step.type !== 'radio' && step.type !== 'select') {
-    if (!coinsDropped.has(stepIdx)) { coinsDropped.add(stepIdx); dropCoin(true); }
+    fillBag(stepIdx, true);
   }
-
   var next = stepIdx + 1;
-  if (next < quizSteps.length) { showStep(next); }
+  if (next < quizSteps.length) { showStep(next, false); }
   else { submitToKajabi(); }
 }
 
 function goBack() {
-  if (currentStep > 0) showStep(currentStep - 1);
+  if (currentStep > 0) showStep(currentStep - 1, true);
 }
 
-function showStep(idx) {
-  document.querySelectorAll('.quiz-screen').forEach(function(s){s.classList.remove('active');});
-  var s = document.getElementById('step-'+idx);
-  if (s) s.classList.add('active');
+/* ── Show step with typeform-style transition ── */
+function showStep(idx, goingBack) {
+  var outgoing = document.getElementById('step-' + currentStep);
+  var incoming = document.getElementById('step-' + idx);
+
+  if (outgoing && outgoing !== incoming && outgoing.classList.contains('active')) {
+    outgoing.classList.remove('active');
+    outgoing.classList.add('exiting');
+    if (goingBack) outgoing.classList.add('to-back');
+    outgoing.addEventListener('animationend', function() {
+      outgoing.classList.remove('exiting', 'to-back');
+    }, { once: true });
+  }
+
+  if (incoming) {
+    if (goingBack) incoming.classList.add('from-back');
+    incoming.classList.add('active');
+    incoming.addEventListener('animationend', function() {
+      incoming.classList.remove('from-back');
+    }, { once: true });
+  }
+
   currentStep = idx;
   var pct = quizSteps.length > 1 ? (idx / (quizSteps.length - 1)) * 100 : 0;
   document.getElementById('progress-fill').style.width = pct + '%';
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
 /* ── Submit to Kajabi ── */
@@ -588,7 +641,13 @@ function submitToKajabi() {
 function showThanks() {
   document.getElementById('quiz-ui').style.display = 'none';
   document.getElementById('screen-thanks').classList.add('active');
-  for (var i = 0; i < 6; i++) { (function(i){ setTimeout(function(){ dropCoin(i===0); }, i*200); })(i); }
+  playChaChingSound();
+  /* fill any remaining bags staggered */
+  for (var i = 0; i < quizSteps.length; i++) {
+    (function(ii) {
+      setTimeout(function() { fillBag(ii, false); }, ii * 140);
+    })(i);
+  }
 }
 
 /* ── Escape helpers ── */
@@ -604,7 +663,6 @@ function waitForKajabi() {
     var form = sink.querySelector('form');
     var radios = form ? form.querySelectorAll('input[type="radio"]') : [];
     var inputs = form ? form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]), select, textarea') : [];
-    // wait until we have at least name+email+1 radio group
     if ((inputs.length >= 2 && radios.length >= 4) || attempts > 50) {
       clearInterval(poll);
       if (form && inputs.length > 0) buildQuiz(form);
@@ -617,17 +675,12 @@ document.addEventListener('keydown', function(e) {
   if (e.key !== 'Enter') return;
   var step = quizSteps[currentStep];
   if (!step) return;
-
   if (step.type === 'radio' || step.type === 'select') {
-    /* only advance if a choice is already selected */
     var selected = document.querySelector('#choices-'+currentStep+' .choice-card.selected');
     if (selected) advance(currentStep);
-
   } else if (step.type === 'checkbox') {
     advance(currentStep);
-
   } else {
-    /* text / email — only if field has value */
     var input = document.getElementById('input-'+currentStep);
     if (input && input.value.trim()) advance(currentStep);
   }
