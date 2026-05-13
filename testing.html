@@ -380,6 +380,9 @@ html, body {
   </div>
 </div>
 
+<!-- Hidden iframe absorbs Kajabi's post-submit redirect — main page never navigates away -->
+<iframe name="kajabi-redirect-frame" id="kajabi-redirect-frame" style="display:none" aria-hidden="true" tabindex="-1"></iframe>
+
 <div id="kajabi-sink">
   <script src="https://grace-yeo.mykajabi.com/forms/2149570193/embed.js"></script>
 </div>
@@ -688,9 +691,15 @@ function showStep(idx, goingBack){
 function submitToKajabi(){
   document.getElementById('progress-fill').style.width='100%';
   var sink=document.getElementById('kajabi-sink');
-  var btn=sink.querySelector('button[type="submit"],input[type="submit"]');
-  if(btn) btn.click();
-  setTimeout(showThanks,600);
+  var form=sink.querySelector('form');
+  if(form){
+    /* Point the form's redirect into the hidden iframe so the main page never navigates away */
+    form.target='kajabi-redirect-frame';
+    var btn=sink.querySelector('button[type="submit"],input[type="submit"]');
+    if(btn) btn.click();
+  }
+  /* Show our custom thank-you page regardless of Kajabi's response */
+  setTimeout(showThanks,500);
 }
 
 function showThanks(){
