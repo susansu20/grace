@@ -245,70 +245,105 @@ html, body {
 }
 @media (pointer: coarse) { .enter-hint { display: none; } }
 
-/* ══ THANK YOU PAGE ══ */
+/* ══ THANK YOU / RESULT PAGE ══ */
 #screen-thanks {
   display: none; position: relative; z-index: 5;
   min-height: 100vh; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 5rem 2rem 3rem;
+  padding: 5.5rem 1.5rem 3rem;
 }
 #screen-thanks.active { display: flex; animation: enterFromBelow 0.55s cubic-bezier(0.22,1,0.36,1) both; }
 
-.thanks-content { max-width: 540px; width: 100%; text-align: center; }
+.thanks-content { max-width: 580px; width: 100%; text-align: center; }
 
-.thanks-star {
-  display: block; font-size: 44px; margin-bottom: 1.25rem;
-  animation: starFloat 3s ease-in-out infinite;
+/* ── Result card ── */
+.result-eyebrow {
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,249,244,0.45); margin-bottom: 1rem;
 }
-@keyframes starFloat {
-  0%,100% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  50%      { transform: translateY(-8px) rotate(12deg); opacity: 0.8; }
+.result-style-chip {
+  display: inline-block; padding: 5px 16px; border-radius: 99px;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 1.1rem;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid var(--style-color, #ccc44e);
+  color: var(--style-color, #ccc44e);
 }
-
-.thanks-content h2 {
+.result-style-name {
   font-family: 'Marcellus', serif;
-  font-size: clamp(26px, 4.5vw, 46px);
-  color: #fff9f4; margin-bottom: 0.6rem;
+  font-size: clamp(32px, 7vw, 58px);
+  line-height: 1.1; margin-bottom: 0.45rem;
+  color: var(--style-color, #fff9f4);
+}
+.result-tagline {
+  font-family: 'Marcellus', serif;
+  font-style: italic;
+  font-size: clamp(15px, 2.5vw, 20px);
+  color: rgba(255,249,244,0.6); margin-bottom: 1.75rem;
+}
+.result-description {
+  font-family: 'Inter', sans-serif; font-size: 15px;
+  color: rgba(255,249,244,0.78); line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+.result-insight {
+  font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600;
+  color: var(--style-color, #ccc44e);
+  border-left: 3px solid var(--style-color, #ccc44e);
+  text-align: left; padding: 0.75rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border-radius: 0 8px 8px 0;
+  line-height: 1.6; margin-bottom: 2rem;
 }
 
-.thanks-sub {
-  font-size: 15px; color: rgba(255,249,244,0.55); line-height: 1.75;
-  font-family: 'Inter', sans-serif; margin-bottom: 2rem;
+/* ── Score dots ── */
+.score-row {
+  display: flex; justify-content: center; gap: 8px;
+  flex-wrap: wrap; margin-bottom: 1.75rem;
 }
+.score-pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px solid rgba(255,249,244,0.1);
+  background: rgba(255,255,255,0.05);
+  font-family: 'Inter', sans-serif; font-size: 11px; color: rgba(255,249,244,0.5);
+}
+.score-pill.winner { border-color: var(--style-color, #ccc44e); color: var(--style-color, #ccc44e); }
+.score-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
 .thanks-divider {
-  width: 48px; height: 1px; background: rgba(204,196,78,0.35);
-  margin: 0 auto 1.75rem;
+  width: 48px; height: 1px; background: rgba(204,196,78,0.25);
+  margin: 0 auto 1.5rem;
 }
-
+.thanks-sub {
+  font-size: 13.5px; color: rgba(255,249,244,0.4); line-height: 1.75;
+  font-family: 'Inter', sans-serif; margin-bottom: 1.5rem;
+}
 .thanks-cta {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
-  text-transform: uppercase; color: #ccc44e;
-  margin-bottom: 1.1rem;
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: #ccc44e;
+  margin-bottom: 1rem;
 }
 
 .social-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px;
 }
 @media (max-width: 420px) { .social-grid { grid-template-columns: 1fr; } }
 
 .social-link {
   display: flex; align-items: center; gap: 10px;
-  padding: 13px 16px; text-decoration: none;
-  border: 1.5px solid rgba(204,196,78,0.28);
-  border-radius: 10px;
-  background: rgba(255,249,244,0.04);
-  color: rgba(255,249,244,0.75);
-  font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500;
-  cursor: pointer; /* override cursor:none — links must look clickable */
+  padding: 12px 15px; text-decoration: none;
+  border: 1.5px solid rgba(204,196,78,0.22);
+  border-radius: 10px; background: rgba(255,249,244,0.04);
+  color: rgba(255,249,244,0.7);
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
 }
-.social-link:hover {
-  border-color: #ccc44e; background: rgba(204,196,78,0.08);
-  color: #fff9f4; transform: translateY(-2px);
-}
-.social-link svg { width: 17px; height: 17px; flex-shrink: 0; color: #ccc44e; }
+.social-link:hover { border-color: #ccc44e; background: rgba(204,196,78,0.08); color: #fff9f4; transform: translateY(-2px); }
+.social-link svg { width: 16px; height: 16px; flex-shrink: 0; color: #ccc44e; }
 
 /* ── Kajabi sink ── */
 #kajabi-sink {
@@ -334,49 +369,50 @@ html, body {
 
 <div id="screen-thanks">
   <div class="thanks-content">
-    <span class="thanks-star">💰</span>
-    <h2>You're all set!</h2>
-    <p class="thanks-sub">Your results are heading to your inbox.<br>Check your spam if you don't see it shortly.</p>
-    <div class="thanks-divider"></div>
-    <p class="thanks-cta">Come say hi &mdash; follow along</p>
-    <div class="social-grid">
 
+    <!-- Result — populated by JS -->
+    <p class="result-eyebrow">Your Sales Attachment Style</p>
+    <div class="result-style-chip" id="result-chip"></div>
+    <h2 class="result-style-name" id="result-style-name"></h2>
+    <p class="result-tagline" id="result-tagline"></p>
+    <p class="result-description" id="result-description"></p>
+    <div class="result-insight" id="result-insight"></div>
+    <div class="score-row" id="score-row"></div>
+
+    <div class="thanks-divider"></div>
+    <p class="thanks-sub">Your full results are heading to your inbox.<br>Check spam if you don't see it shortly.</p>
+    <p class="thanks-cta">Come say hi &mdash; follow along</p>
+
+    <div class="social-grid">
       <a href="https://www.instagram.com/iamgraceyeo" target="_blank" rel="noopener" class="social-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
           <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
           <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-        </svg>
-        Instagram
+        </svg>Instagram
       </a>
-
       <a href="https://www.linkedin.com/in/iamgraceyeo/" target="_blank" rel="noopener" class="social-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/>
           <rect x="2" y="9" width="4" height="12"/>
           <circle cx="4" cy="4" r="2"/>
-        </svg>
-        LinkedIn
+        </svg>LinkedIn
       </a>
-
       <a href="https://www.youtube.com/@iamgraceyeo" target="_blank" rel="noopener" class="social-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22.54 6.42a2.78 2.78 0 00-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.1C5.12 19.58 12 19.58 12 19.58s6.88 0 8.6-.47a2.78 2.78 0 001.94-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/>
-          <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" stroke="none" fill="currentColor" opacity="0.4"/>
-        </svg>
-        YouTube
+          <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" stroke="none" fill="currentColor" opacity="0.35"/>
+        </svg>YouTube
       </a>
-
       <a href="https://www.graceyeo.com/home" target="_blank" rel="noopener" class="social-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <line x1="2" y1="12" x2="22" y2="12"/>
           <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-        </svg>
-        graceyeo.com
+        </svg>graceyeo.com
       </a>
-
     </div>
+
   </div>
 </div>
 
@@ -461,6 +497,138 @@ function fillBag(stepIdx, withSound) {
   if (withSound) playChaChingSound();
 }
 
+/* ══ Attachment style scoring ══ */
+var styleScores   = { 'Anxious':0, 'Avoidant':0, 'Fearful-Avoidant':0, 'Secure':0 };
+var stepStyleMap  = {}; /* stepIdx → style currently recorded for that step */
+
+/* Keywords extracted from the known answer texts for each style */
+var STYLE_KEYWORDS = {
+  'Anxious': [
+    'immediately', 'what if', 'can be flexible', 'half-convinced', 'relieved, but',
+    'relieved but', 'drop your price', 'the more you shrink', 'shrink', 'check in',
+    'should you', 'not happy', 'keep sending', 'blast', 'over-explain',
+    'already worried', 'anxious', 'nervous', 'what if they'
+  ],
+  'Avoidant': [
+    "that's on them", 'move on without', 'single question', 'only when',
+    'runs dry', 'calendar empties', "not really your thing", 'feelings about it',
+    "don't have to", 'wait it out', 'easy.', 'fine.', 'politely decline',
+    'arm\'s length', 'detached'
+  ],
+  'Fearful-Avoidant': [
+    'justify the cost', 'give a discount', 'give it away', 'rather give it away',
+    'whatever it takes', 'paralyzed', 'panic but', 'lower number', 'terrified',
+    'equal parts excited', 'equal parts', 'rather give', 'deal with it later',
+    'something went wrong', 'say something wrong', 'bonus', 'extra support',
+    'hear no', 'can\'t bear', 'freeze'
+  ],
+  'Secure': [
+    'compared to what', 'curious, not defensive', 'curious not defensive',
+    'no apology', 'one follow-up', 'one follow up', 'leave the ball in their court',
+    'regular outreach', 'review your strategy', 'reach out intentionally',
+    'delivering value', 'clearly', 'part of the job', 'celebrate briefly',
+    'intentionally', 'confident', 'briefly', 'hold your price'
+  ]
+};
+
+function classifyStyle(text) {
+  var lower = text.toLowerCase();
+  var scores = { 'Anxious':0, 'Avoidant':0, 'Fearful-Avoidant':0, 'Secure':0 };
+  Object.keys(STYLE_KEYWORDS).forEach(function(style) {
+    STYLE_KEYWORDS[style].forEach(function(kw) {
+      if (lower.indexOf(kw.toLowerCase()) !== -1) scores[style]++;
+    });
+  });
+  /* pick highest; default Secure if nothing matches */
+  var best = 'Secure', bestN = -1;
+  Object.keys(scores).forEach(function(s) { if (scores[s] > bestN) { bestN = scores[s]; best = s; } });
+  return best;
+}
+
+function recordStyleAnswer(stepIdx, style) {
+  /* undo previous answer for this step (handles back-navigation) */
+  if (stepStyleMap[stepIdx]) {
+    styleScores[stepStyleMap[stepIdx]] = Math.max(0, styleScores[stepStyleMap[stepIdx]] - 1);
+  }
+  if (style) { styleScores[style]++; stepStyleMap[stepIdx] = style; }
+}
+
+/* Tie-breaking as per the criteria table */
+function determineResult() {
+  var s = styleScores;
+  var max = Math.max(s['Anxious'], s['Avoidant'], s['Fearful-Avoidant'], s['Secure']);
+  var leaders = ['Anxious','Avoidant','Fearful-Avoidant','Secure'].filter(function(x){ return s[x]===max; });
+  if (leaders.length === 1) return leaders[0];
+
+  var tied = {};
+  leaders.forEach(function(l){ tied[l] = true; });
+
+  /* 3-way and 4-way ties → always Fearful-Avoidant */
+  if (leaders.length >= 3) return 'Fearful-Avoidant';
+
+  /* 2-way ties */
+  if (tied['Anxious']          && tied['Avoidant'])          return 'Fearful-Avoidant';
+  if (tied['Anxious']          && tied['Fearful-Avoidant'])  return 'Fearful-Avoidant';
+  if (tied['Anxious']          && tied['Secure'])            return 'Anxious';           /* insecure wins */
+  if (tied['Avoidant']         && tied['Fearful-Avoidant'])  return 'Fearful-Avoidant';
+  if (tied['Avoidant']         && tied['Secure'])            return 'Avoidant';          /* insecure wins */
+  if (tied['Fearful-Avoidant'] && tied['Secure'])            return 'Fearful-Avoidant';
+  return leaders[0];
+}
+
+/* Style result content */
+var STYLE_INFO = {
+  'Anxious': {
+    color: '#ff9a85',
+    tagline: 'The Over-Explainer',
+    description: 'You sell from fear, not confidence. Every "I need to think about it" sends you into a spiral — over-explaining, discounting before they even push back, and checking in too soon. You\'re not chasing clients. You\'re chasing reassurance.',
+    insight: 'Your shift: learn to hold the silence after you say your price. The discomfort you feel is exactly where your growth lives.'
+  },
+  'Avoidant': {
+    color: '#85b8ff',
+    tagline: 'The Arms-Length Closer',
+    description: 'You can make the offer — but the moment they hesitate, you\'re already emotionally out the door. You mistake detachment for professionalism. The clients who would have said yes never got the chance, because you moved on first.',
+    insight: 'Your shift: get comfortable staying in the conversation one beat longer. A single follow-up question could be worth thousands.'
+  },
+  'Fearful-Avoidant': {
+    color: '#c8a8ff',
+    tagline: 'The Push-Pull Seller',
+    description: 'You want the sale, but the process terrifies you. You swing between chasing and retreating — justifying your price, then discounting it, then going cold. This inconsistency is costing you clients who would happily pay your real rate.',
+    insight: 'Your shift: build a repeatable sales process you can follow regardless of how you feel. Structure creates safety.'
+  },
+  'Secure': {
+    color: '#7de8a0',
+    tagline: 'The Grounded Closer',
+    description: 'You sell from genuine confidence. You hold your price, follow up intentionally, and get curious about objections instead of collapsing under them. This is the gold standard — and the style every sales coach is working toward.',
+    insight: 'Your edge: protect this. As you scale, keep the systems that let you sell without compromising your standards.'
+  }
+};
+
+function renderResult(result) {
+  var info = STYLE_INFO[result];
+  var color = info.color;
+  /* apply CSS custom property for theming */
+  document.getElementById('screen-thanks').style.setProperty('--style-color', color);
+  document.getElementById('result-chip').textContent = result;
+  document.getElementById('result-style-name').textContent = result;
+  document.getElementById('result-tagline').textContent = '"' + info.tagline + '"';
+  document.getElementById('result-description').textContent = info.description;
+  document.getElementById('result-insight').textContent = info.insight;
+
+  /* score breakdown pills */
+  var scoreRow = document.getElementById('score-row');
+  scoreRow.innerHTML = '';
+  var order = ['Secure','Anxious','Avoidant','Fearful-Avoidant'];
+  order.forEach(function(style) {
+    var n = styleScores[style];
+    if (n === 0) return;
+    var pill = document.createElement('div');
+    pill.className = 'score-pill' + (style === result ? ' winner' : '');
+    pill.innerHTML = '<div class="score-dot"></div>' + style + ' &times;' + n;
+    scoreRow.appendChild(pill);
+  });
+}
+
 /* ══ Quiz engine ══ */
 var quizSteps = [], currentStep = 0, quizAnswers = {};
 /* debounce timer — prevents double-fire if user clicks rapidly */
@@ -541,6 +709,8 @@ function buildQuiz(form) {
       var label=getRadioGroupLabel(field,form);
       var options=group.map(function(r){return{value:r.value,text:getRadioOptionLabel(r)||r.value};});
       shuffle(options);
+      /* classify each option into a style by its text */
+      options.forEach(function(o){ o.style = classifyStyle(o.text); });
       quizSteps.push({type:'radio',label:label,radioGroup:group,options:options});
     } else if(field.tagName==='SELECT'){
       var opts=Array.from(field.options).filter(function(o){return o.value!=='';}).map(function(o){return{value:o.value,text:o.text};});
@@ -616,6 +786,12 @@ function selectChoice(el, stepIdx){
     if(ns&&ns.set) ns.set.call(step.field,val); else step.field.value=val;
     step.field.dispatchEvent(new Event('change',{bubbles:true}));
   }
+  /* Record style for scoring (handles back-navigation correctly) */
+  var chosenOpt = quizSteps[stepIdx].options
+    ? quizSteps[stepIdx].options.filter(function(o){ return o.value === val; })[0]
+    : null;
+  if (chosenOpt && chosenOpt.style) recordStyleAnswer(stepIdx, chosenOpt.style);
+
   fillBag(stepIdx, true);
   /* Auto-advance on ALL devices — debounce so rapid re-clicks reset the timer */
   clearTimeout(autoAdvanceTimer);
@@ -703,8 +879,10 @@ function submitToKajabi(){
 }
 
 function showThanks(){
+  var result = determineResult();
+  renderResult(result);
   document.getElementById('quiz-ui').style.display='none';
-  document.getElementById('bag-progress').style.display='none'; /* hide bags so they don't overlay social links */
+  document.getElementById('bag-progress').style.display='none';
   document.getElementById('screen-thanks').classList.add('active');
   playChaChingSound();
   for(var i=0;i<quizSteps.length;i++){(function(ii){setTimeout(function(){fillBag(ii,false);},ii*120);})(i);}
